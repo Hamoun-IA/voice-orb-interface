@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Voice Orb Interface</title>
+  <script>p5.disableFriendlyErrors = true;</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.3/p5.min.js"></script>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app-shell">
+    <section class="hero-copy">
+      <p class="eyebrow">J.A.R.V.I.S. Voice Orb Prototype</p>
+      <h1>Interface vocale orbitale.</h1>
+      <p class="lede">
+        Un noyau vocal teal, pensé pour rendre les états <span>idle</span>, <span>listening</span>, <span>thinking</span> et <span>speaking</span>
+        lisibles sans transformer l'écran en fête foraine pour développeur en manque d'attention.
+      </p>
+      <div class="status-bar">
+        <div>
+          <span class="label">État actif</span>
+          <strong id="stateLabel">Idle</strong>
+        </div>
+        <div>
+          <span class="label">Amplitude</span>
+          <strong id="energyLabel">0.24</strong>
+        </div>
+      </div>
+      <div class="status-bar secondary">
+        <div>
+          <span class="label">Source audio</span>
+          <strong id="audioModeLabel">Démo interne</strong>
+        </div>
+        <div>
+          <span class="label">Statut voix</span>
+          <strong id="micStatusLabel">Inactif</strong>
+        </div>
+      </div>
+      <div class="status-bar secondary tertiary">
+        <div>
+          <span class="label">Reconnaissance</span>
+          <strong id="recognitionLabel">Non testée</strong>
+        </div>
+        <div>
+          <span class="label">Système</span>
+          <strong id="systemPhaseLabel">Standby</strong>
+        </div>
+      </div>
+      <div class="controls mode-controls" role="group" aria-label="Contrôles audio">
+        <button class="state-btn accent" id="micToggleBtn" type="button">Activer la boucle vocale</button>
+        <button class="state-btn ghost" id="demoToggleBtn" type="button">Revenir en démo</button>
+      </div>
+      <div class="controls" role="group" aria-label="États de l'orbe">
+        <button class="state-btn active" data-state="idle">Idle</button>
+        <button class="state-btn" data-state="listening">Listening</button>
+        <button class="state-btn" data-state="thinking">Thinking</button>
+        <button class="state-btn" data-state="speaking">Speaking</button>
+      </div>
+      <section class="transcript-panel" aria-label="Transcripts système">
+        <div class="transcript-block">
+          <span class="label">Utilisateur</span>
+          <p id="userTranscript">Aucune entrée vocale pour le moment.</p>
+        </div>
+        <div class="transcript-block interim">
+          <span class="label">Interim</span>
+          <p id="interimTranscript">…</p>
+        </div>
+        <div class="transcript-block assistant">
+          <span class="label">Assistant</span>
+          <p id="assistantTranscript">En attente d’un échange utile, ce qui me laisse un rare instant de paix.</p>
+        </div>
+      </section>
+      <p class="hint">Astuce&nbsp;: touches <kbd>1</kbd> à <kbd>4</kbd> pour changer d'état en mode démo. La boucle vocale active micro + reconnaissance navigateur + réponse assistant simulée avec synthèse vocale locale.</p>
+    </section>
+
+    <section class="visual-panel">
+      <div id="orb-canvas" aria-label="Visualisation orbitale de la voix"></div>
+      <div class="panel-overlay"></div>
+      <div class="hud-ring"></div>
+    </section>
+  </main>
+
+  <script src="./audio.js"></script>
+  <script src="./app.js"></script>
+</body>
+</html>
