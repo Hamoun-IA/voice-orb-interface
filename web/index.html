@@ -9,6 +9,17 @@
   <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
+  <header class="desktop-chrome" aria-label="Desktop overlay controls" hidden>
+    <div class="desktop-drag-strip">
+      <span class="desktop-pill"></span>
+      <span class="desktop-title">Voice Orb Overlay</span>
+    </div>
+    <div class="desktop-controls" role="group" aria-label="Contrôles de fenêtre">
+      <button class="desktop-control-btn" id="desktopCompactBtn" type="button" aria-label="Basculer le mode compact">Compact</button>
+      <button class="desktop-control-btn" id="desktopMinimizeBtn" type="button" aria-label="Réduire la fenêtre">—</button>
+      <button class="desktop-control-btn close" id="desktopCloseBtn" type="button" aria-label="Fermer la fenêtre">×</button>
+    </div>
+  </header>
   <main class="app-shell">
     <section class="hero-copy">
       <p class="eyebrow">J.A.R.V.I.S. Voice Orb Prototype</p>
@@ -47,6 +58,43 @@
           <strong id="systemPhaseLabel">Standby</strong>
         </div>
       </div>
+
+      <section class="remote-panel" aria-label="Connexion VPS">
+        <div class="remote-panel-head">
+          <span class="label">VPS agent transport</span>
+          <strong id="remoteStatusLabel">Non connecté</strong>
+        </div>
+        <label class="remote-field">
+          <span>URL WebSocket</span>
+          <input id="remoteUrlInput" type="url" placeholder="wss://test.hamoun.fun/ws/voice-orb" />
+        </label>
+        <div class="controls remote-controls" role="group" aria-label="Contrôles de connexion VPS">
+          <button class="state-btn accent" id="remoteConnectBtn" type="button">Connecter au VPS</button>
+          <button class="state-btn ghost" id="remoteDisconnectBtn" type="button">Couper le VPS</button>
+        </div>
+        <div class="remote-meta-grid" aria-label="Métadonnées de session distante">
+          <div class="remote-meta-card">
+            <span class="label">Mode distant</span>
+            <strong id="remoteModeLabel">Hors ligne</strong>
+          </div>
+          <div class="remote-meta-card">
+            <span class="label">Dernier événement</span>
+            <strong id="remoteLastEventLabel">Aucun</strong>
+          </div>
+          <div class="remote-meta-card wide">
+            <span class="label">Session</span>
+            <strong id="remoteSessionLabel">Aucune session distante</strong>
+          </div>
+        </div>
+        <label class="remote-field remote-composer">
+          <span>Commande texte manuelle</span>
+          <textarea id="remoteCommandInput" rows="3" placeholder="Ex. : lance un test de liaison avec le mock bridge VPS"></textarea>
+        </label>
+        <div class="controls remote-controls" role="group" aria-label="Envoi de commande distante">
+          <button class="state-btn accent" id="remoteSendBtn" type="button">Envoyer au VPS</button>
+        </div>
+      </section>
+
       <div class="controls mode-controls" role="group" aria-label="Contrôles audio">
         <button class="state-btn accent" id="micToggleBtn" type="button">Activer la boucle vocale</button>
         <button class="state-btn ghost" id="demoToggleBtn" type="button">Revenir en démo</button>
@@ -71,7 +119,7 @@
           <p id="assistantTranscript">En attente d’un échange utile, ce qui me laisse un rare instant de paix.</p>
         </div>
       </section>
-      <p class="hint">Astuce&nbsp;: touches <kbd>1</kbd> à <kbd>4</kbd> pour changer d'état en mode démo. La boucle vocale active micro + reconnaissance navigateur + réponse assistant simulée avec synthèse vocale locale.</p>
+      <p class="hint">Astuce&nbsp;: touches <kbd>1</kbd> à <kbd>4</kbd> pour changer d'état en mode démo. La boucle vocale active micro + reconnaissance navigateur + réponse assistant simulée avec synthèse vocale locale. La connexion VPS permet désormais un test concret via WebSocket, y compris l’envoi manuel de texte vers un bridge distant ou mock. Pour le site public, utilisez la liaison sécurisée <code>wss://test.hamoun.fun/ws/voice-orb</code>.</p>
     </section>
 
     <section class="visual-panel">
@@ -82,6 +130,52 @@
   </main>
 
   <script src="./audio.js"></script>
+  <script src="./remote-client.js"></script>
   <script src="./app.js"></script>
+  <script>
+    (() => {
+      const desktopApi = window.voiceOrbDesktop;
+
+      if (!desktopApi?.isDesktop) {
+        return;
+      }
+
+      document.body.dataset.desktopShell = 'true';
+
+      const chrome = document.querySelector('.desktop-chrome');
+      const compactBtn = document.getElementById('desktopCompactBtn');
+      const minimizeBtn = document.getElementById('desktopMinimizeBtn');
+      const closeBtn = document.getElementById('desktopCloseBtn');
+
+      chrome.hidden = false;
+
+      const syncCompactUi = (compact) => {
+        document.body.dataset.compactMode = compact ? 'true' : 'false';
+        compactBtn.textContent = compact ? 'Étendre' : 'Compact';
+        compactBtn.setAttribute('aria-pressed', compact ? 'true' : 'false');
+      };
+
+      desktopApi.getOverlayState().then((state) => {
+        syncCompactUi(Boolean(state?.compact));
+      }).catch(() => {
+        syncCompactUi(false);
+      });
+
+      desktopApi.onCompactModeChanged(syncCompactUi);
+
+      compactBtn.addEventListener('click', async () => {
+        const state = await desktopApi.toggleCompactMode();
+        syncCompactUi(Boolean(state?.compact));
+      });
+
+      minimizeBtn.addEventListener('click', () => {
+        desktopApi.minimizeWindow();
+      });
+
+      closeBtn.addEventListener('click', () => {
+        desktopApi.closeWindow();
+      });
+    })();
+  </script>
 </body>
 </html>

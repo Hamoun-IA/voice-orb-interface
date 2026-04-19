@@ -1,0 +1,13 @@
+{
+  "name": "voice-orb-hermes-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Hermes-backed WebSocket bridge for testing the Voice Orb remote cockpit.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}

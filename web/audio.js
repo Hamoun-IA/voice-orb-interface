@@ -193,6 +193,10 @@ class BrowserSpeechLoop {
 
     window.speechSynthesis.cancel();
     this.speaking = true;
+    const wasListening = this.active && this.supportsRecognition;
+    if (wasListening) {
+      try { this.recognition.stop(); } catch (_e) { /* already stopped */ }
+    }
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'fr-FR';
     utterance.rate = 0.96;
@@ -207,12 +211,18 @@ class BrowserSpeechLoop {
     utterance.onend = () => {
       this.speaking = false;
       this.status = this.active ? 'Écoute active' : 'Inactif';
+      if (wasListening && this.active) {
+        try { this.recognition.start(); } catch (_e) { /* restart deferred to onend */ }
+      }
       if (onEnd) onEnd();
     };
 
     utterance.onerror = () => {
       this.speaking = false;
       this.status = 'Erreur synthèse';
+      if (wasListening && this.active) {
+        try { this.recognition.start(); } catch (_e) { /* restart deferred to onend */ }
+      }
       if (onEnd) onEnd();
     };
 
@@ -222,6 +232,8 @@ class BrowserSpeechLoop {
 
   cancelSpeech() {
     this.speaking = false;
+    this.currentUtterance = null;
+    this.status = this.active ? 'Écoute active' : 'Inactif';
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
